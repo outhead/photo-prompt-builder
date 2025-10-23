@@ -1,880 +1,511 @@
-const unique = (values) => [...new Set(values.map((value) => value.trim()).filter(Boolean))];
-
-// Debounce функция для оптимизации производительности
-const debounce = (func, delay = 300) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func(...args), delay);
-  };
-};
-
+// Templates with bilingual data
 const templates = {
   cinematic: {
-    title: "Кинематографичный кадр",
-    description:
-      "Соберите атмосферную сцену с персонажем, местом, светом и операторскими приёмами в духе художественного кино.",
+    title: "Cinematic Scene",
+    titleRu: "Кинематографичный кадр",
     fields: [
       {
         key: "start",
-        label: "Старт",
-        options: unique(["movie still,"]),
+        label: "Start",
+        labelRu: "Старт",
+        options: [
+          { value: "movie still,", translation: "кинокадр" }
+        ],
+        autoSelect: true
       },
       {
         key: "subject",
-        label: "Объект (+ действие)",
-        options: unique([
-          "Harley Quinn",
-          "fluffy cat",
-          "Max Payne",
-          "gopnik, black tracksuit",
-          "french bulldog",
-          "retrofuturistic robot",
-          "ninja",
-          "batman",
-          "shrek",
-          "spiderman",
-          "Queen Elizabeth",
-        ]),
+        label: "Subject & Action",
+        labelRu: "Объект и действие",
+        options: [
+          { value: "Harley Quinn", translation: "Харли Квинн" },
+          { value: "fluffy cat", translation: "пушистый кот" },
+          { value: "Max Payne", translation: "Макс Пейн" },
+          { value: "gopnik, black tracksuit", translation: "гопник в спортивке" },
+          { value: "french bulldog", translation: "французский бульдог" },
+          { value: "retrofuturistic robot", translation: "ретрофутуристичный робот" },
+          { value: "ninja", translation: "ниндзя" },
+          { value: "batman", translation: "бэтмен" },
+          { value: "spiderman", translation: "человек-паук" }
+        ]
       },
       {
         key: "location",
-        label: "Локация",
-        options: unique([
-          "Russian village",
-          "Kremlin roof",
-          "old bar interior",
-          "on table",
-          "spaceship interior",
-          "hyperspace",
-          "forest",
-          "Buckingham Palace",
-        ]),
+        label: "Location",
+        labelRu: "Локация",
+        options: [
+          { value: "Russian village", translation: "русская деревня" },
+          { value: "Kremlin roof", translation: "крыша Кремля" },
+          { value: "old bar interior", translation: "интерьер старого бара" },
+          { value: "on table", translation: "на столе" },
+          { value: "spaceship interior", translation: "интерьер космического корабля" },
+          { value: "hyperspace", translation: "гиперпространство" },
+          { value: "forest", translation: "лес" },
+          { value: "Buckingham Palace", translation: "Букингемский дворец" }
+        ]
       },
       {
         key: "lighting",
-        label: "Освещение",
-        options: unique([
-          "dramatic lighting",
-          "low key",
-          "high key",
-          "bright",
-          "dark",
-          "rim light",
-          "neon",
-          "volumetric light",
-          "cinematic lighting",
-          "golden hour",
-        ]),
+        label: "Lighting",
+        labelRu: "Освещение",
+        options: [
+          { value: "dramatic lighting", translation: "драматичное освещение" },
+          { value: "low key", translation: "низкий ключ" },
+          { value: "high key", translation: "высокий ключ" },
+          { value: "bright", translation: "яркое" },
+          { value: "dark", translation: "темное" },
+          { value: "rim light", translation: "контровой свет" },
+          { value: "neon", translation: "неон" },
+          { value: "volumetric light", translation: "объемный свет" },
+          { value: "cinematic lighting", translation: "кинематографичное освещение" },
+          { value: "golden hour", translation: "золотой час" }
+        ]
       },
       {
         key: "camera",
-        label: "Крупность / Камера",
-        options: unique([
-          "full body",
-          "macro",
-          "close up",
-          "bird's-eye view",
-          "view from above, high angle",
-          "view from below, low angle",
-          "view from behind",
-          "top view",
-          "POV",
-          "wide shot",
-        ]),
+        label: "Camera Angle",
+        labelRu: "Ракурс камеры",
+        options: [
+          { value: "full body", translation: "в полный рост" },
+          { value: "macro", translation: "макро" },
+          { value: "close up", translation: "крупный план" },
+          { value: "bird's-eye view", translation: "вид с высоты птичьего полета" },
+          { value: "view from above, high angle", translation: "вид сверху" },
+          { value: "view from below, low angle", translation: "вид снизу" },
+          { value: "POV", translation: "от первого лица" },
+          { value: "wide shot", translation: "общий план" }
+        ]
       },
       {
         key: "director",
-        label: "Режиссёр",
-        options: unique([
-          "by Andrei Tarkovsky",
-          "by Akira Kurosawa",
-          "by Michael Bay",
-          "by Steven Spielberg",
-          "by Wes Anderson",
-          "by Martin Scorsese",
-          "by Terrence Malick",
-          "by Pedro Almodovar",
-          "by Lars von Trier",
-          "by David Fincher",
-        ]),
+        label: "Director Style",
+        labelRu: "Стиль режиссера",
+        options: [
+          { value: "by Andrei Tarkovsky", translation: "в стиле Тарковского" },
+          { value: "by Akira Kurosawa", translation: "в стиле Куросавы" },
+          { value: "by Michael Bay", translation: "в стиле Майкла Бэя" },
+          { value: "by Steven Spielberg", translation: "в стиле Спилберга" },
+          { value: "by Wes Anderson", translation: "в стиле Уэса Андерсона" },
+          { value: "by David Fincher", translation: "в стиле Финчера" }
+        ]
       },
       {
         key: "mood",
-        label: "Настроение / Жанр",
-        options: unique([
-          "Action",
-          "Happy",
-          "Dramatic",
-          "Calm",
-          "Sad",
-          "Horror",
-          "Dreamy",
-          "Sci-fi",
-          "Fantasy",
-          "Epic",
-        ]),
-      },
-      {
-        key: "year",
-        label: "Год",
-        options: unique([
-          "2000 year",
-          "1990s",
-          "1980s",
-          "1970s",
-          "1960s",
-          "1950s",
-          "1940s",
-          "1930s",
-          "1920s",
-          "ancient period",
-          "2047 year",
-          "2020 year",
-        ]),
-      },
-      {
-        key: "film",
-        label: "Тип плёнки / камера",
-        options: unique([
-          "Fujifilm Superia",
-          "GoPro",
-          "Kodachrome",
-          "Kodak Ektar",
-          "vintage camera",
-          "film",
-        ]),
-      },
-      {
-        key: "optics",
-        label: "Оптика",
-        options: unique([
-          "f/4, 120mm",
-          "f/1.8, 85mm",
-          "f/4, 85mm",
-          "f/8, 85mm",
-          "f/4, 250mm",
-          "f/4, 35mm",
-        ]),
+        label: "Mood",
+        labelRu: "Настроение",
+        options: [
+          { value: "Action", translation: "экшн" },
+          { value: "Happy", translation: "радостное" },
+          { value: "Dramatic", translation: "драматичное" },
+          { value: "Calm", translation: "спокойное" },
+          { value: "Horror", translation: "ужас" },
+          { value: "Dreamy", translation: "мечтательное" },
+          { value: "Sci-fi", translation: "научная фантастика" },
+          { value: "Epic", translation: "эпичное" }
+        ]
       },
       {
         key: "details",
-        label: "Детали",
-        options: unique([
-          "8k",
-          "muted colors",
-          "Bokeh",
-          "Sharp Focus",
-          "Intricate details",
-          "Amazing",
-          "Bright colors",
-        ]),
-      },
-    ],
+        label: "Details",
+        labelRu: "Детали",
+        options: [
+          { value: "8k", translation: "8k" },
+          { value: "muted colors", translation: "приглушенные цвета" },
+          { value: "Bokeh", translation: "боке" },
+          { value: "Sharp Focus", translation: "четкий фокус" },
+          { value: "Intricate details", translation: "сложные детали" },
+          { value: "Bright colors", translation: "яркие цвета" }
+        ]
+      }
+    ]
   },
   logo: {
-    title: "Логотип / фирменный стиль",
-    description:
-      "Помогает сформировать описание логотипа с нужными формами, цветами, текстурами и настроением.",
+    title: "Logo Design",
+    titleRu: "Дизайн логотипа",
     fields: [
       {
         key: "start",
-        label: "Старт",
-        options: unique(["logotype,"]),
+        label: "Start",
+        labelRu: "Старт",
+        options: [
+          { value: "logotype,", translation: "логотип" }
+        ],
+        autoSelect: true
       },
       {
         key: "style",
-        label: "Стиль",
-        options: unique([
-          "Minimalistic",
-          "Abstract",
-          "Geometric",
-          "Organic",
-          "Vintage",
-          "Modern",
-          "Futuristic",
-          "Classic",
-          "Retro",
-          "Art Deco",
-          "Industrial",
-          "Hand-drawn",
-          "Cartoonish",
-          "Textured",
-          "Flat",
-          "Gradient",
-          "Monoline",
-        ]),
+        label: "Style",
+        labelRu: "Стиль",
+        options: [
+          { value: "Minimalistic", translation: "минималистичный" },
+          { value: "Abstract", translation: "абстрактный" },
+          { value: "Geometric", translation: "геометричный" },
+          { value: "Vintage", translation: "винтажный" },
+          { value: "Modern", translation: "современный" },
+          { value: "Futuristic", translation: "футуристичный" }
+        ]
       },
       {
         key: "logoType",
-        label: "Тип логотипа",
-        options: unique([
-          "Combination mark",
-          "Emblem",
-          "Symbol",
-          "Wordmark",
-          "Mascot",
-          "Lettermark",
-          "Pictorial mark",
-          "Abstract mark",
-          "Coat of Arms",
-          "Seal",
-        ]),
+        label: "Logo Type",
+        labelRu: "Тип логотипа",
+        options: [
+          { value: "Combination mark", translation: "комбинированный знак" },
+          { value: "Emblem", translation: "эмблема" },
+          { value: "Symbol", translation: "символ" },
+          { value: "Wordmark", translation: "словесный знак" },
+          { value: "Mascot", translation: "маскот" },
+          { value: "Lettermark", translation: "буквенный знак" }
+        ]
       },
       {
         key: "color",
-        label: "Цвет",
-        options: unique([
-          "Blue",
-          "Black",
-          "Red",
-          "Green",
-          "Yellow",
-          "Orange",
-          "Purple",
-          "Multicolor",
-          "Brown",
-          "Pink",
-          "Grey",
-          "Gold",
-          "Silver",
-          "Bronze",
-          "Teal",
-          "Indigo",
-          "Maroon",
-        ]),
-      },
-      {
-        key: "font",
-        label: "Шрифт",
-        options: unique([
-          "Bold",
-          "Serif",
-          "Sans-serif",
-          "Handwritten",
-          "Decorative",
-          "Monospaced",
-          "Script",
-          "Italic",
-          "Condensed",
-          "Extended",
-          "Thin",
-          "Heavy",
-          "Regular",
-          "Rounded",
-          "Uppercase",
-          "Lowercase",
-          "Mixed Case",
-        ]),
-      },
-      {
-        key: "elements",
-        label: "Элементы дизайна",
-        options: unique([
-          "Circles",
-          "Lines",
-          "Squares",
-          "Triangles",
-          "Organic shapes",
-          "Geometric shapes",
-          "Arrows",
-          "Stars",
-          "Dots",
-          "Spirals",
-          "Waves",
-          "Zigzags",
-          "Hearts",
-          "Diamonds",
-          "Hexagons",
-          "Octagons",
-          "Ovals",
-          "Rectangles",
-        ]),
-      },
-      {
-        key: "symbolism",
-        label: "Символика",
-        options: unique([
-          "Air",
-          "Animals",
-          "Plants",
-          "Technology",
-          "Nature",
-          "Geometric shapes",
-          "Human",
-          "Mythology",
-          "Space",
-          "Water",
-          "Fire",
-          "Earth",
-          "Music",
-          "Art",
-          "Sports",
-          "Food",
-          "Transportation",
-        ]),
-      },
-      {
-        key: "texture",
-        label: "Текстура",
-        options: unique([
-          "Grassy texture",
-          "Smooth texture",
-          "Rough texture",
-          "Textured texture",
-          "Metallic texture",
-          "Wooden texture",
-          "Paper texture",
-          "Fabric texture",
-          "Stone texture",
-          "Glass texture",
-          "Plastic texture",
-          "Leather texture",
-          "Rubber texture",
-          "Furry texture",
-          "Glossy texture",
-          "Matte texture",
-          "Satin texture",
-          "Silky texture",
-        ]),
-      },
-      {
-        key: "effects",
-        label: "Эффекты",
-        options: unique([
-          "3D",
-          "Shadow",
-          "Gradient",
-          "Neon",
-          "Reflection",
-          "Glowing",
-          "Embossed",
-          "Debossed",
-          "Transparent",
-          "Opaque",
-          "Shiny",
-          "Sparkling",
-          "Glittering",
-          "Fading",
-          "Blurred",
-          "Distorted",
-          "Cracked",
-        ]),
-      },
-      {
-        key: "emotion",
-        label: "Эмоция",
-        options: unique([
-          "Eco-friendly",
-          "Friendly",
-          "Professional",
-          "Innovative",
-          "Energetic",
-          "Playful",
-          "Serious",
-          "Luxurious",
-          "Casual",
-          "Formal",
-          "Dynamic",
-          "Stable",
-          "Trustworthy",
-          "Welcoming",
-          "Inviting",
-          "Warm",
-          "Cool",
-        ]),
+        label: "Color",
+        labelRu: "Цвет",
+        options: [
+          { value: "Blue", translation: "синий" },
+          { value: "Black", translation: "черный" },
+          { value: "Red", translation: "красный" },
+          { value: "Green", translation: "зеленый" },
+          { value: "Yellow", translation: "желтый" },
+          { value: "Purple", translation: "фиолетовый" },
+          { value: "Gold", translation: "золотой" },
+          { value: "Silver", translation: "серебряный" }
+        ]
       },
       {
         key: "background",
-        label: "Фон",
-        options: unique([
-          "on white surface",
-          "on white background",
-          "on poster",
-          "on t-shirt",
-          "on black background",
-          "on colored background",
-          "on gradient background",
-          "on textured background",
-          "on digital screen",
-          "on billboard",
-          "on business card",
-          "on website",
-          "on mobile app",
-          "on stationery",
-          "on brochure",
-          "on banner",
-          "on flyer",
-        ]),
-      },
-      {
-        key: "details",
-        label: "Детали",
-        options: unique([
-          "8k",
-          "muted colors",
-          "Bokeh",
-          "Sharp Focus",
-          "Intricate details",
-          "Amazing",
-          "Bright colors",
-        ]),
-      },
-    ],
+        label: "Background",
+        labelRu: "Фон",
+        options: [
+          { value: "on white background", translation: "на белом фоне" },
+          { value: "on black background", translation: "на черном фоне" },
+          { value: "on colored background", translation: "на цветном фоне" },
+          { value: "on gradient background", translation: "на градиентном фоне" }
+        ]
+      }
+    ]
   },
   studio: {
-    title: "Студийная предметная съёмка",
-    description:
-      "Подходит для коммерческих кадров товаров, еды и аксессуаров со светом и фоном из студии.",
+    title: "Studio Product Shot",
+    titleRu: "Студийная съемка",
     fields: [
       {
         key: "start",
-        label: "Старт",
-        options: unique(["studio photo of"]),
+        label: "Start",
+        labelRu: "Старт",
+        options: [
+          { value: "studio photo of", translation: "студийное фото" }
+        ],
+        autoSelect: true
       },
       {
         key: "subject",
-        label: "Объект (+ действие)",
-        options: unique([
-          "a man",
-          "a product",
-          "a healthy food",
-          "an electronics",
-          "a fashion jacket",
-          "a watches",
-          "a jewelry",
-          "a cosmetics",
-          "a tools",
-          "a toys",
-          "a books",
-          "a flowers",
-          "a glass of beer",
-          "a dog",
-          "a cat",
-        ]),
-      },
-      {
-        key: "position",
-        label: "Положение",
-        options: unique([
-          "Centered",
-          "Left-aligned",
-          "Right-aligned",
-          "Top-aligned",
-          "Bottom-aligned",
-          "Off-center",
-          "Diagonal",
-          "Overlapping",
-          "Layered",
-          "Floating in the air",
-          "on the table",
-        ]),
-      },
-      {
-        key: "material",
-        label: "Материал",
-        options: unique([
-          "realistic",
-          "made from Plastic",
-          "made from Metal",
-          "made from Glass",
-          "made from Wood",
-          "made from Fabric",
-          "made from Paper",
-          "made from Leather",
-          "made from Rubber",
-          "made from Ceramic",
-          "made from Stone",
-        ]),
+        label: "Product",
+        labelRu: "Продукт",
+        options: [
+          { value: "a product", translation: "продукт" },
+          { value: "a healthy food", translation: "здоровая еда" },
+          { value: "electronics", translation: "электроника" },
+          { value: "fashion jacket", translation: "модная куртка" },
+          { value: "watches", translation: "часы" },
+          { value: "jewelry", translation: "украшения" },
+          { value: "cosmetics", translation: "косметика" },
+          { value: "glass of beer", translation: "стакан пива" }
+        ]
       },
       {
         key: "lighting",
-        label: "Освещение",
-        options: unique([
-          "cinematic lighting",
-          "dramatic lighting",
-          "low key",
-          "high key",
-          "bright",
-          "dark",
-          "rim light",
-          "neon",
-          "volumetric light",
-          "golden hour",
-        ]),
-      },
-      {
-        key: "camera",
-        label: "Крупность / Камера",
-        options: unique([
-          "close up",
-          "macro",
-          "full body",
-          "bird's-eye view",
-          "view from above",
-          "view from below, low angle",
-          "view from behind",
-          "top view",
-          "POV",
-          "wide shot",
-          "high angle",
-        ]),
+        label: "Lighting",
+        labelRu: "Освещение",
+        options: [
+          { value: "cinematic lighting", translation: "кинематографичное" },
+          { value: "dramatic lighting", translation: "драматичное" },
+          { value: "bright", translation: "яркое" },
+          { value: "rim light", translation: "контровой свет" },
+          { value: "volumetric light", translation: "объемный свет" }
+        ]
       },
       {
         key: "background",
-        label: "Фон",
-        options: unique([
-          "on white surface",
-          "white background",
-          "Minimalistic backdrop",
-          "Detailed backdrop",
-        ]),
+        label: "Background",
+        labelRu: "Фон",
+        options: [
+          { value: "white background", translation: "белый фон" },
+          { value: "on white surface", translation: "на белой поверхности" },
+          { value: "Minimalistic backdrop", translation: "минималистичный фон" },
+          { value: "Detailed backdrop", translation: "детализированный фон" }
+        ]
       },
       {
         key: "style",
-        label: "Стиль",
-        options: unique([
-          "Detailed",
-          "Realistic",
-          "Minimalistic",
-          "Vintage",
-          "Modern",
-          "Futuristic",
-          "Artistic",
-          "Cartoonish",
-          "Photorealistic",
-          "High contrast",
-          "Saturated",
-          "Monochromatic",
-          "Pastel",
-          "Dark",
-          "Light",
-          "Vibrant",
-          "Muted",
-          "Colorful",
-        ]),
-      },
-      {
-        key: "details",
-        label: "Детали",
-        options: unique([
-          "8k",
-          "muted colors",
-          "Bokeh",
-          "Sharp Focus",
-          "Intricate details",
-          "Amazing",
-          "Bright colors",
-        ]),
-      },
-    ],
-  },
+        label: "Style",
+        labelRu: "Стиль",
+        options: [
+          { value: "Realistic", translation: "реалистичный" },
+          { value: "Minimalistic", translation: "минималистичный" },
+          { value: "Modern", translation: "современный" },
+          { value: "Photorealistic", translation: "фотореалистичный" },
+          { value: "High contrast", translation: "высокий контраст" }
+        ]
+      }
+    ]
+  }
 };
 
+// State
 const state = {
-  templateKey: "cinematic",
-  values: {},
+  currentTemplate: "cinematic",
+  selections: {},
   extra: "",
+  showTranslations: true
 };
 
-const templateSelector = document.getElementById("templateSelector");
-const templateTitle = document.getElementById("templateTitle");
-const templateDescription = document.getElementById("templateDescription");
+// DOM elements
 const fieldsContainer = document.getElementById("fieldsContainer");
 const extraInput = document.getElementById("extraInput");
 const promptOutput = document.getElementById("promptOutput");
-const piecesList = document.getElementById("piecesList");
-const symbolsCounter = document.getElementById("symbolsCounter");
-const copyToast = document.querySelector(".copy-toast");
-const copyButton = document.getElementById("copyButton");
-const randomButton = document.getElementById("randomButton");
-const clearButton = document.getElementById("clearButton");
+const charCount = document.getElementById("charCount");
+const tagsContainer = document.getElementById("tags");
+const translationToggle = document.getElementById("translationToggle");
+const toast = document.getElementById("toast");
 
-const OPTION_CUSTOM_VALUE = "__custom__";
+// Initialize
+function init() {
+  renderTemplate(state.currentTemplate);
+  setupEventListeners();
+}
 
-const init = () => {
-  Object.entries(templates).forEach(([key, template]) => {
-    const option = document.createElement("option");
-    option.value = key;
-    option.textContent = template.title;
-    templateSelector.append(option);
+// Setup event listeners
+function setupEventListeners() {
+  // Template buttons
+  document.querySelectorAll(".template-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const template = e.target.dataset.template;
+      switchTemplate(template);
+    });
   });
 
-  templateSelector.value = state.templateKey;
-  renderTemplate(state.templateKey);
-
-  templateSelector.addEventListener("change", (event) => {
-    setTemplate(event.target.value);
+  // Translation toggle
+  translationToggle.addEventListener("change", (e) => {
+    state.showTranslations = e.target.checked;
+    updateTranslationVisibility();
   });
 
-  const debouncedUpdatePrompt = debounce(updatePrompt, 200);
-
-  extraInput.addEventListener("input", (event) => {
-    state.extra = event.target.value.trim();
-    debouncedUpdatePrompt();
+  // Extra input
+  extraInput.addEventListener("input", (e) => {
+    state.extra = e.target.value.trim();
+    updatePrompt();
   });
 
-  copyButton.addEventListener("click", handleCopy);
-  randomButton.addEventListener("click", fillRandomValues);
-  clearButton.addEventListener("click", clearAll);
+  // Action buttons
+  document.getElementById("randomButton").addEventListener("click", randomize);
+  document.getElementById("clearButton").addEventListener("click", clearAll);
+  document.getElementById("copyButton").addEventListener("click", copyPrompt);
 
   // Keyboard shortcuts
-  document.addEventListener("keydown", (event) => {
-    // Ctrl+C / Cmd+C для копирования (когда не в поле ввода)
-    if ((event.ctrlKey || event.metaKey) && event.key === "c") {
-      const activeElement = document.activeElement;
-      if (activeElement.tagName !== "INPUT" && activeElement.tagName !== "TEXTAREA") {
-        event.preventDefault();
-        handleCopy();
-      }
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "c" && !isInputFocused()) {
+      e.preventDefault();
+      copyPrompt();
     }
-
-    // Alt+R для рандомизации
-    if (event.altKey && event.key.toLowerCase() === "r") {
-      event.preventDefault();
-      fillRandomValues();
+    if (e.altKey && e.key.toLowerCase() === "r") {
+      e.preventDefault();
+      randomize();
     }
-
-    // Ctrl+Shift+X / Cmd+Shift+X для очистки
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "x") {
-      event.preventDefault();
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "x") {
+      e.preventDefault();
       clearAll();
     }
   });
-};
+}
 
-const setTemplate = (key) => {
-  state.templateKey = key;
-  state.values = {};
+function isInputFocused() {
+  const active = document.activeElement;
+  return active.tagName === "INPUT" || active.tagName === "TEXTAREA";
+}
+
+// Switch template
+function switchTemplate(templateKey) {
+  state.currentTemplate = templateKey;
+  state.selections = {};
   state.extra = "";
   extraInput.value = "";
-  renderTemplate(key);
+
+  document.querySelectorAll(".template-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.template === templateKey);
+  });
+
+  renderTemplate(templateKey);
   updatePrompt();
-};
+}
 
-const renderTemplate = (key) => {
-  const template = templates[key];
-  templateTitle.textContent = template.title;
-  templateDescription.textContent = template.description;
-
+// Render template
+function renderTemplate(templateKey) {
+  const template = templates[templateKey];
   fieldsContainer.innerHTML = "";
-  template.fields.forEach((field, index) => {
-    const fieldElement = createField(field);
-    fieldsContainer.appendChild(fieldElement);
 
-    // Автоматически выбираем первое поле (обычно "Старт")
-    if (index === 0 && field.options.length > 0) {
-      const select = fieldElement.querySelector('select');
-      const firstOption = field.options[0];
-      select.value = firstOption;
-      state.values[field.key] = firstOption;
+  template.fields.forEach((field) => {
+    const fieldEl = createField(field);
+    fieldsContainer.appendChild(fieldEl);
+
+    // Auto-select first option if specified
+    if (field.autoSelect && field.options.length > 0) {
+      state.selections[field.key] = field.options[0].value;
     }
   });
 
   updatePrompt();
-};
+}
 
-const createField = (field) => {
-  const wrapper = document.createElement("div");
-  wrapper.className = "field";
+// Create field element
+function createField(field) {
+  const fieldEl = document.createElement("div");
+  fieldEl.className = "field";
 
   const label = document.createElement("label");
-  label.htmlFor = `${field.key}Select`;
-  label.textContent = field.label;
+  label.className = "field-label";
+  label.innerHTML = `
+    <span class="label-text">${field.label}</span>
+    <span class="label-translation ${state.showTranslations ? "" : "hidden"}">${field.labelRu}</span>
+  `;
 
-  const select = document.createElement("select");
-  select.id = `${field.key}Select`;
-  select.dataset.key = field.key;
+  const optionsEl = document.createElement("div");
+  optionsEl.className = "options";
 
-  const placeholder = document.createElement("option");
-  placeholder.value = "";
-  placeholder.textContent = "— выберите —";
-  select.append(placeholder);
+  field.options.forEach((option) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.dataset.key = field.key;
+    btn.dataset.value = option.value;
 
-  field.options.forEach((optionValue) => {
-    const option = document.createElement("option");
-    option.value = optionValue;
-    option.textContent = optionValue;
-    select.append(option);
-  });
-
-  const customOption = document.createElement("option");
-  customOption.value = OPTION_CUSTOM_VALUE;
-  customOption.textContent = "Свой вариант…";
-  select.append(customOption);
-
-  const customInput = document.createElement("input");
-  customInput.type = "text";
-  customInput.dataset.key = field.key;
-  customInput.placeholder = "Введите свой вариант";
-  customInput.className = "custom-input";
-
-  select.addEventListener("change", () => {
-    const { value } = select;
-    if (value === OPTION_CUSTOM_VALUE) {
-      customInput.classList.add("is-visible");
-      customInput.focus();
-      updateValue(field.key, customInput.value.trim());
-    } else {
-      customInput.classList.remove("is-visible");
-      customInput.value = "";
-      updateValue(field.key, value.trim());
+    const isSelected = state.selections[field.key] === option.value;
+    if (isSelected) {
+      btn.classList.add("selected");
     }
+
+    btn.innerHTML = `
+      ${option.value}
+      <span class="translation ${state.showTranslations ? "" : "hidden"}">(${option.translation})</span>
+    `;
+
+    btn.addEventListener("click", () => {
+      handleOptionClick(field.key, option.value, btn);
+    });
+
+    optionsEl.appendChild(btn);
   });
 
-  const debouncedUpdate = debounce((value) => {
-    // Валидация: максимум 150 символов для кастомного значения
-    if (value.length > 150) {
-      customInput.setCustomValidity("Максимум 150 символов");
-      customInput.reportValidity();
-      return;
-    }
-    customInput.setCustomValidity("");
-    updateValue(field.key, value);
-  }, 200);
+  fieldEl.appendChild(label);
+  fieldEl.appendChild(optionsEl);
+  return fieldEl;
+}
 
-  customInput.addEventListener("input", (event) => {
-    const value = event.target.value.trim();
-    debouncedUpdate(value);
-  });
+// Handle option click
+function handleOptionClick(key, value, btn) {
+  // Deselect all options in this field
+  const allBtns = document.querySelectorAll(`[data-key="${key}"]`);
+  allBtns.forEach((b) => b.classList.remove("selected"));
 
-  wrapper.append(label, select, customInput);
-  return wrapper;
-};
-
-const updateValue = (key, value) => {
-  if (value) {
-    state.values[key] = value;
+  // Toggle selection
+  if (state.selections[key] === value) {
+    delete state.selections[key];
   } else {
-    delete state.values[key];
+    state.selections[key] = value;
+    btn.classList.add("selected");
   }
+
   updatePrompt();
-};
+}
 
-const buildParts = () => {
-  const template = templates[state.templateKey];
-  const parts = template.fields
-    .map((field) => state.values[field.key])
-    .filter(Boolean);
+// Update translation visibility
+function updateTranslationVisibility() {
+  const translations = document.querySelectorAll(".label-translation, .option-btn .translation");
+  translations.forEach((el) => {
+    el.classList.toggle("hidden", !state.showTranslations);
+  });
+}
 
+// Update prompt
+function updatePrompt() {
+  const parts = Object.values(state.selections).filter(Boolean);
   if (state.extra) {
     parts.push(state.extra);
   }
 
-  return parts;
-};
-
-const updatePrompt = () => {
-  const parts = buildParts();
   const prompt = parts.join(" ");
   promptOutput.value = prompt;
-  symbolsCounter.textContent = `${prompt.length} символов`;
-  renderPieces(parts);
-};
+  charCount.textContent = `${prompt.length} characters`;
 
-const renderPieces = (parts) => {
-  piecesList.innerHTML = "";
-  if (!parts.length) {
-    return;
-  }
+  // Update tags
+  renderTags(parts);
+}
 
+// Render tags
+function renderTags(parts) {
+  tagsContainer.innerHTML = "";
   parts.forEach((part) => {
-    const chip = document.createElement("span");
-    chip.className = "chip";
-    chip.textContent = part;
-    piecesList.appendChild(chip);
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = part;
+    tagsContainer.appendChild(tag);
   });
-};
+}
 
-const handleCopy = async () => {
+// Randomize
+function randomize() {
+  const template = templates[state.currentTemplate];
+  state.selections = {};
+
+  template.fields.forEach((field) => {
+    if (field.options.length > 0) {
+      const randomOption = field.options[Math.floor(Math.random() * field.options.length)];
+      state.selections[field.key] = randomOption.value;
+    }
+  });
+
+  renderTemplate(state.currentTemplate);
+  showToast("🎲 Random prompt generated!", "success");
+}
+
+// Clear all
+function clearAll() {
+  state.selections = {};
+  state.extra = "";
+  extraInput.value = "";
+  renderTemplate(state.currentTemplate);
+  showToast("🗑️ Cleared", "success");
+}
+
+// Copy prompt
+async function copyPrompt() {
   const text = promptOutput.value.trim();
   if (!text) {
-    showToast("⚠️ Нет текста для копирования", "warning");
+    showToast("⚠️ Nothing to copy", "warning");
     return;
   }
 
   try {
     await navigator.clipboard.writeText(text);
-    showToast("✓ Промт скопирован!", "success");
+    showToast("✓ Copied to clipboard!", "success");
   } catch (error) {
-    console.error("Clipboard API failed:", error);
-    // Fallback метод для старых браузеров
-    try {
-      promptOutput.focus();
-      promptOutput.select();
-      const successful = document.execCommand("copy");
-      if (successful) {
-        showToast("✓ Промт скопирован!", "success");
-      } else {
-        showToast("✗ Не удалось скопировать", "error");
-      }
-    } catch (fallbackError) {
-      console.error("Fallback copy failed:", fallbackError);
-      showToast("✗ Копирование не поддерживается", "error");
-    }
+    // Fallback
+    promptOutput.select();
+    document.execCommand("copy");
+    showToast("✓ Copied!", "success");
   }
-};
+}
 
-const showToast = (message, type = "info") => {
-  copyToast.textContent = message;
-  copyToast.className = "copy-toast";
-  copyToast.classList.add("is-visible", `toast--${type}`);
+// Show toast
+function showToast(message, type = "success") {
+  toast.textContent = message;
+  toast.className = `toast ${type}`;
+  toast.classList.add("show");
 
   setTimeout(() => {
-    copyToast.classList.remove("is-visible");
+    toast.classList.remove("show");
   }, 2500);
-};
+}
 
-const getFieldControls = () => {
-  return Array.from(fieldsContainer.querySelectorAll("select"));
-};
-
-const fillRandomValues = () => {
-  const template = templates[state.templateKey];
-  const selects = getFieldControls();
-
-  selects.forEach((select) => {
-    const key = select.dataset.key;
-    const field = template.fields.find((item) => item.key === key);
-    if (!field || !field.options.length) {
-      select.value = "";
-      updateValue(key, "");
-      return;
-    }
-
-    const randomOption = field.options[Math.floor(Math.random() * field.options.length)];
-    select.value = randomOption;
-
-    const customInput = fieldsContainer.querySelector(
-      `input.custom-input[data-key="${key}"]`
-    );
-    if (customInput) {
-      customInput.classList.remove("is-visible");
-      customInput.value = "";
-    }
-
-    updateValue(key, randomOption);
-  });
-
-  state.extra = "";
-  extraInput.value = "";
-  updatePrompt();
-};
-
-const clearAll = () => {
-  getFieldControls().forEach((select) => {
-    select.value = "";
-  });
-  fieldsContainer
-    .querySelectorAll("input.custom-input")
-    .forEach((input) => {
-      input.value = "";
-      input.classList.remove("is-visible");
-    });
-  state.values = {};
-  state.extra = "";
-  extraInput.value = "";
-  updatePrompt();
-};
-
+// Initialize app
 init();

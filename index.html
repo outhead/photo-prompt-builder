@@ -3,87 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Генератор фото-промтов</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <title>Photo Prompt Builder</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page">
-      <header class="page__header">
-        <div class="page__headline">
-          <h1>Конструктор фото-промтов</h1>
-          <p>
-            Соберите описательный запрос для генераторов изображений, комбинируя
-            готовые элементы и добавляя свои идеи.
-          </p>
+    <div class="container">
+      <header class="header">
+        <div class="header__content">
+          <h1>Photo Prompt Builder</h1>
+          <p>Конструктор промтов для генерации изображений</p>
         </div>
-        <div class="template-picker">
-          <label class="template-picker__label" for="templateSelector">
-            Тип сцены
+        <div class="header__controls">
+          <label class="toggle">
+            <input type="checkbox" id="translationToggle" checked />
+            <span class="toggle__label">Показать переводы</span>
           </label>
-          <select id="templateSelector" class="template-picker__select">
-          </select>
         </div>
       </header>
 
-      <main class="page__main">
-        <section class="template-info" aria-live="polite">
-          <h2 id="templateTitle"></h2>
-          <p id="templateDescription"></p>
-        </section>
+      <nav class="template-nav">
+        <button class="template-btn active" data-template="cinematic">
+          🎬 Cinematic
+        </button>
+        <button class="template-btn" data-template="logo">
+          🎨 Logo
+        </button>
+        <button class="template-btn" data-template="studio">
+          📸 Studio
+        </button>
+      </nav>
 
-        <section class="fields" aria-label="Поля конструктора">
-          <div id="fieldsContainer" class="fields__grid"></div>
-        </section>
+      <main class="main">
+        <div id="fieldsContainer"></div>
 
-        <section class="extra">
-          <label for="extraInput">Дополнительное описание</label>
+        <section class="additional">
+          <label class="field-label">
+            <span class="label-text">Additional Description</span>
+            <span class="label-translation">Дополнительное описание</span>
+          </label>
           <textarea
             id="extraInput"
-            placeholder="Например: ultra detailed, hyperrealistic portrait"
-            rows="3"
+            placeholder="e.g., ultra detailed, hyperrealistic..."
+            rows="2"
           ></textarea>
         </section>
 
-        <section class="actions" aria-label="Действия">
-          <button id="randomButton" type="button" class="button button--ghost">
-            Случайный промт
+        <section class="actions">
+          <button id="randomButton" class="btn btn--secondary">
+            🎲 Random
           </button>
-          <button id="clearButton" type="button" class="button button--ghost">
-            Очистить
+          <button id="clearButton" class="btn btn--secondary">
+            🗑️ Clear
           </button>
-          <button id="copyButton" type="button" class="button button--primary">
-            Скопировать промт
+          <button id="copyButton" class="btn btn--primary">
+            📋 Copy Prompt
           </button>
-          <div class="copy-toast" role="status" aria-live="polite"></div>
         </section>
 
-        <section class="preview" aria-label="Собранный промт">
-          <header class="preview__header">
-            <h2>Итоговый промт</h2>
-            <span id="symbolsCounter" class="preview__counter"></span>
-          </header>
+        <section class="result">
+          <div class="result__header">
+            <h2>Final Prompt</h2>
+            <span id="charCount" class="char-count">0 characters</span>
+          </div>
           <textarea id="promptOutput" readonly rows="4"></textarea>
-          <div id="piecesList" class="preview__pieces"></div>
+          <div id="tags" class="tags"></div>
         </section>
       </main>
 
-      <footer class="page__footer">
-        <p>
-          Страница подготовлена для быстрой сборки промтов по мотивам шаблонов
-          из таблицы. Проект можно разместить на GitHub Pages и делиться ссылкой
-          с коллегами.
-        </p>
-        <p class="keyboard-hints">
-          <strong>Горячие клавиши:</strong> Ctrl+C — копировать • Alt+R — рандом • Ctrl+Shift+X — очистить
-        </p>
+      <footer class="footer">
+        <p>Keyboard shortcuts: <kbd>Ctrl+C</kbd> Copy • <kbd>Alt+R</kbd> Random • <kbd>Ctrl+Shift+X</kbd> Clear</p>
       </footer>
     </div>
-    <script src="script.js" defer></script>
+
+    <div id="toast" class="toast"></div>
+    <script src="script.js"></script>
   </body>
 </html>
