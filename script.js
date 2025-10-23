@@ -629,8 +629,8 @@ const init = () => {
       }
     }
 
-    // Ctrl+R / Cmd+R для рандомизации
-    if ((event.ctrlKey || event.metaKey) && event.key === "r") {
+    // Alt+R для рандомизации
+    if (event.altKey && event.key.toLowerCase() === "r") {
       event.preventDefault();
       fillRandomValues();
     }
