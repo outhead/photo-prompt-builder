@@ -1,5 +1,14 @@
 const unique = (values) => [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 
+// Debounce функция для оптимизации производительности
+const debounce = (func, delay = 300) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 const templates = {
   cinematic: {
     title: "Кинематографичный кадр",
@@ -204,7 +213,6 @@ const templates = {
           "Emblem",
           "Symbol",
           "Wordmark",
-          "Combination mark",
           "Mascot",
           "Lettermark",
           "Pictorial mark",
@@ -298,7 +306,6 @@ const templates = {
           "Space",
           "Water",
           "Fire",
-          "Air",
           "Earth",
           "Music",
           "Art",
@@ -600,14 +607,40 @@ const init = () => {
     setTemplate(event.target.value);
   });
 
+  const debouncedUpdatePrompt = debounce(updatePrompt, 200);
+
   extraInput.addEventListener("input", (event) => {
     state.extra = event.target.value.trim();
-    updatePrompt();
+    debouncedUpdatePrompt();
   });
 
   copyButton.addEventListener("click", handleCopy);
   randomButton.addEventListener("click", fillRandomValues);
   clearButton.addEventListener("click", clearAll);
+
+  // Keyboard shortcuts
+  document.addEventListener("keydown", (event) => {
+    // Ctrl+C / Cmd+C для копирования (когда не в поле ввода)
+    if ((event.ctrlKey || event.metaKey) && event.key === "c") {
+      const activeElement = document.activeElement;
+      if (activeElement.tagName !== "INPUT" && activeElement.tagName !== "TEXTAREA") {
+        event.preventDefault();
+        handleCopy();
+      }
+    }
+
+    // Ctrl+R / Cmd+R для рандомизации
+    if ((event.ctrlKey || event.metaKey) && event.key === "r") {
+      event.preventDefault();
+      fillRandomValues();
+    }
+
+    // Ctrl+Shift+X / Cmd+Shift+X для очистки
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "x") {
+      event.preventDefault();
+      clearAll();
+    }
+  });
 };
 
 const setTemplate = (key) => {
@@ -625,10 +658,20 @@ const renderTemplate = (key) => {
   templateDescription.textContent = template.description;
 
   fieldsContainer.innerHTML = "";
-  template.fields.forEach((field) => {
+  template.fields.forEach((field, index) => {
     const fieldElement = createField(field);
     fieldsContainer.appendChild(fieldElement);
+
+    // Автоматически выбираем первое поле (обычно "Старт")
+    if (index === 0 && field.options.length > 0) {
+      const select = fieldElement.querySelector('select');
+      const firstOption = field.options[0];
+      select.value = firstOption;
+      state.values[field.key] = firstOption;
+    }
   });
+
+  updatePrompt();
 };
 
 const createField = (field) => {
@@ -679,8 +722,20 @@ const createField = (field) => {
     }
   });
 
+  const debouncedUpdate = debounce((value) => {
+    // Валидация: максимум 150 символов для кастомного значения
+    if (value.length > 150) {
+      customInput.setCustomValidity("Максимум 150 символов");
+      customInput.reportValidity();
+      return;
+    }
+    customInput.setCustomValidity("");
+    updateValue(field.key, value);
+  }, 200);
+
   customInput.addEventListener("input", (event) => {
-    updateValue(field.key, event.target.value.trim());
+    const value = event.target.value.trim();
+    debouncedUpdate(value);
   });
 
   wrapper.append(label, select, customInput);
@@ -734,27 +789,40 @@ const renderPieces = (parts) => {
 const handleCopy = async () => {
   const text = promptOutput.value.trim();
   if (!text) {
-    showToast("Нет текста для копирования");
+    showToast("⚠️ Нет текста для копирования", "warning");
     return;
   }
 
   try {
     await navigator.clipboard.writeText(text);
-    showToast("Промт скопирован!");
+    showToast("✓ Промт скопирован!", "success");
   } catch (error) {
-    promptOutput.focus();
-    promptOutput.select();
-    const successful = document.execCommand("copy");
-    showToast(successful ? "Промт скопирован!" : "Не удалось скопировать");
+    console.error("Clipboard API failed:", error);
+    // Fallback метод для старых браузеров
+    try {
+      promptOutput.focus();
+      promptOutput.select();
+      const successful = document.execCommand("copy");
+      if (successful) {
+        showToast("✓ Промт скопирован!", "success");
+      } else {
+        showToast("✗ Не удалось скопировать", "error");
+      }
+    } catch (fallbackError) {
+      console.error("Fallback copy failed:", fallbackError);
+      showToast("✗ Копирование не поддерживается", "error");
+    }
   }
 };
 
-const showToast = (message) => {
+const showToast = (message, type = "info") => {
   copyToast.textContent = message;
-  copyToast.classList.add("is-visible");
+  copyToast.className = "copy-toast";
+  copyToast.classList.add("is-visible", `toast--${type}`);
+
   setTimeout(() => {
     copyToast.classList.remove("is-visible");
-  }, 2000);
+  }, 2500);
 };
 
 const getFieldControls = () => {
